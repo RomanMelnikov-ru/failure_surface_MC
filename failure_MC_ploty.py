@@ -7,7 +7,6 @@ c_initial = 10  # Начальное значение сцепления (кПа
 phi_initial = 30  # Начальное значение угла внутреннего трения (градусы)
 plane_constant_initial = 100  # Начальное значение для плоскости
 
-
 # Универсальная функция для вычисления sigma3 или sigma2 через sigma1 (или наоборот)
 def edge(sigma, c, phi, mode):
     if mode == "12>3":
@@ -22,7 +21,6 @@ def edge(sigma, c, phi, mode):
         return sigma - (2 * c * np.cos(phi) + 2 * sigma * np.sin(phi)) / (1 + np.sin(phi))
     elif mode == "23<1":
         return sigma + (2 * c * np.cos(phi) + 2 * sigma * np.sin(phi)) / (1 - np.sin(phi))
-
 
 # Функция для нахождения пересечения ребра с плоскостью
 def find_intersection(edge_func, sigma_range, plane_constant, vertex, axis, c, phi, mode):
@@ -47,7 +45,6 @@ def find_intersection(edge_func, sigma_range, plane_constant, vertex, axis, c, p
             return np.array([sigma1[idx], sigma_values[idx], sigma_values[idx]])
     return None
 
-
 # Функция для обновления графика
 def update(c, phi, plane_constant, camera_state=None):
     phi_rad = np.radians(phi)
@@ -62,7 +59,6 @@ def update(c, phi, plane_constant, camera_state=None):
         find_intersection(edge, np.linspace(sigma_vertex, 100, 1000), plane_constant, vertex, 3, c, phi_rad, "23<1")
     ]
     fig = go.Figure()
-
     # Рисуем ребра
     colors = ['red', 'red', 'red', 'red', 'red', 'red']
     for i, (intersection, color) in enumerate(zip(intersections, colors)):
@@ -75,7 +71,6 @@ def update(c, phi, plane_constant, camera_state=None):
                 line=dict(color=color, width=1),
                 showlegend=False
             ))
-
     # Рисуем вершину
     fig.add_trace(go.Scatter3d(
         x=[vertex[0]],
@@ -85,7 +80,6 @@ def update(c, phi, plane_constant, camera_state=None):
         marker=dict(size=3, color='red'),
         showlegend=False
     ))
-
     # Рисуем оси
     fig.add_trace(go.Scatter3d(
         x=[0, 50], y=[0, 0], z=[0, 0],
@@ -105,7 +99,6 @@ def update(c, phi, plane_constant, camera_state=None):
         line=dict(color='red', width=3, dash='dash'),
         showlegend=False
     ))
-
     # Рисуем гидростатическую ось
     hydrostatic_range = np.linspace(sigma_vertex, sigma_vertex + 100, 100)
     fig.add_trace(go.Scatter3d(
@@ -116,7 +109,6 @@ def update(c, phi, plane_constant, camera_state=None):
         line=dict(color='grey', width=3, dash='dash'),
         showlegend=False
     ))
-
     # Рисуем грани пирамиды
     if all(intersection is not None for intersection in intersections):
         all_points = [vertex] + intersections
@@ -135,7 +127,6 @@ def update(c, phi, plane_constant, camera_state=None):
             reversescale=True,
             showlegend=False
         ))
-
     # Настройки графика
     fig.update_layout(
         title=f'Шестигранная пирамида прочности Мора-Кулона<br>c = {c:.1f} кПа, φ = {phi:.1f}°',
@@ -147,13 +138,10 @@ def update(c, phi, plane_constant, camera_state=None):
         ),
         margin=dict(l=0, r=0, b=0, t=30)
     )
-
     # Сохраняем текущее состояние камеры
     if camera_state:
         fig.update_layout(scene_camera=camera_state)
-
     return fig
-
 
 # Создаем слайдеры в Streamlit
 c = st.slider('Удельное сцепление (кПа)', 0, 40, c_initial, key='c_slider')
